@@ -1,3 +1,9 @@
+export interface IAddress {
+  city: string;
+  street: string;
+  zip: number;
+}
+
 export interface IUser {
   firstName: string;
   lastName: string;
@@ -6,4 +12,5 @@ export interface IUser {
   password: string;
   role: "USER" | "ADMIN";
   phone: number;
+  address: IAddress;
 }

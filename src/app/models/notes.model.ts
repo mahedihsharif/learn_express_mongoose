@@ -18,6 +18,11 @@ const noteSchema = new Schema<INotes>(
       label: { type: String, require: true },
       color: { type: String, default: "gray" },
     },
+    user: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
   },
   { versionKey: false, timestamps: true }
 );

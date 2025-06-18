@@ -1,6 +1,15 @@
 import { model, Schema } from "mongoose";
 import validator from "validator";
-import { IUser } from "../interface/user.interface";
+import { IAddress, IUser } from "../interface/user.interface";
+
+const addressSchema = new Schema<IAddress>(
+  {
+    city: { type: String },
+    street: { type: String },
+    zip: { type: Number },
+  },
+  { _id: false }
+);
 
 const userSchema = new Schema<IUser>(
   {
@@ -67,7 +76,7 @@ const userSchema = new Schema<IUser>(
       type: String,
       enum: {
         values: ["USER", "ADMIN"],
-        message: "Rote is not valid, got {VALUE}",
+        message: "Role is not valid, got {VALUE}",
       },
       uppercase: true,
       default: "USER",
@@ -82,6 +91,7 @@ const userSchema = new Schema<IUser>(
         message: (props) => `${props.value} is not valid phone number`,
       },
     },
+    address: { type: addressSchema },
   },
   { versionKey: false, timestamps: true }
 );

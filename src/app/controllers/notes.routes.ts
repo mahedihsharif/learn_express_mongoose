@@ -25,7 +25,7 @@ notesRouter.post("/create-note", async (req: Request, res: Response) => {
 
 //get all notes
 notesRouter.get("/", async (req: Request, res: Response) => {
-  const notes = await Note.find();
+  const notes = await Note.find().populate("user");
 
   res.status(200).json({
     success: true,
@@ -36,7 +36,6 @@ notesRouter.get("/", async (req: Request, res: Response) => {
 
 //get a single note
 notesRouter.get("/:id", async (req: Request, res: Response) => {
-  console.log("inside single note method");
   const { id } = req.params;
   const note = await Note.findById(id);
 
