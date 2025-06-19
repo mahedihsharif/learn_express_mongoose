@@ -1,6 +1,13 @@
+import bcrypt from "bcrypt";
 import { model, Schema } from "mongoose";
 import validator from "validator";
-import { IAddress, IUser } from "../interface/user.interface";
+import {
+  IAddress,
+  IUser,
+  UserInstanceMethods,
+  UserStaticMethods,
+} from "../interface/user.interface";
+import { Note } from "./notes.model";
 
 const addressSchema = new Schema<IAddress>(
   {
@@ -11,7 +18,7 @@ const addressSchema = new Schema<IAddress>(
   { _id: false }
 );
 
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema<IUser, UserInstanceMethods, UserStaticMethods>(
   {
     firstName: {
       type: String,
@@ -93,8 +100,56 @@ const userSchema = new Schema<IUser>(
     },
     address: { type: addressSchema },
   },
-  { versionKey: false, timestamps: true }
+  {
+    versionKey: false,
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
 
-const User = model("User", userSchema);
+//instance method
+userSchema.method("hashPassword", async function (plainPassword: string) {
+  const password = await bcrypt.hash(plainPassword, 10);
+  return password;
+});
+
+//static method
+userSchema.static("hashPassword", async function (plainPassword: string) {
+  const password = await bcrypt.hash(plainPassword, 10);
+  return password;
+});
+
+//document middleware
+userSchema.pre("save", async function (next) {
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+//query middleware
+userSchema.pre("find", function (next) {
+  console.log("Inside pre find");
+  next();
+});
+
+//document middleware
+userSchema.post("save", function (doc, next) {
+  console.log(`${doc.email} has been saved`);
+  next();
+});
+
+//Query middleware
+userSchema.post("findOneAndDelete", async function (doc, next) {
+  if (doc) {
+    await Note.deleteMany({ user: doc._id });
+  }
+  next();
+});
+
+//virtual to get a value that never save in mongodb
+userSchema.virtual("fullName").get(function () {
+  return `${this.firstName} ${this.lastName}`;
+});
+
+const User = model<IUser, UserStaticMethods>("User", userSchema);
 export default User;

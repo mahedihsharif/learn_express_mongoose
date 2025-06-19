@@ -1,10 +1,8 @@
-import bcrypt from "bcrypt";
 import express, { Request, Response } from "express";
 
 import { z } from "zod";
 import User from "../models/user.model";
 const userRouter = express.Router();
-
 const CreateUserZodSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
@@ -19,8 +17,16 @@ userRouter.post("/create-user", async (req: Request, res: Response) => {
   try {
     // const zodBody = await CreateUserZodSchema.parseAsync(req.body);
     const body = await req.body;
-    const hashedPassword = await bcrypt.hash(body.password, 10);
-    body.password = hashedPassword;
+
+    //it's instance methods to create user data
+    // const user = new User(body);
+    // const password = await user.hashPassword(body.password);
+    // user.password = password;
+    // const newUser = await user.save();
+
+    //it's static method to create user data
+    // const password = await User.hashPassword(body.password);
+    // body.password = password;
     const newUser = await User.create(body);
     res.status(201).json({
       success: true,
@@ -39,6 +45,19 @@ userRouter.post("/create-user", async (req: Request, res: Response) => {
 //get all user
 userRouter.get("/", async (req: Request, res: Response) => {
   const users = await User.find();
+  //filter method
+  // const users = await User.find({email:req.query.email});
+  //sorting method
+  // const users = await User.find().sort({ email: "asc" });
+  // const users = await User.find().sort({ email: "ascending" });
+  // const users = await User.find().sort({ email: "dsc" });
+  // const users = await User.find().sort({ email: "descending" });
+  // const users = await User.find().sort({ email: 1 });
+  // const users = await User.find().sort({ email: -1 });
+  //Skipping Method
+  // const users = await User.find().skip(5)
+  //Limit Method
+  // const users = await User.find().limit(3);
 
   res.status(200).json({
     success: true,
